@@ -128,8 +128,9 @@ const addCraft = async (e) => {
     formData.append("supplies", getSupplies());
 
     console.log(...formData);
+    
 
-    if (form._id.value.trim == "") {
+    if (form._id.value.trim() == "") {
         console.log("in post");
         response = await fetch("/api/crafts", {
             method: "POST",
@@ -145,6 +146,11 @@ const addCraft = async (e) => {
     
 
     if (response.status != 200) {
+        result.innerHTML = "Error adding your craft";
+        result.style.color = "blue";
+        setTimeout(() => {
+            result.innerHTML = "";
+        }, 3000);
         console.log("Error posting data");
     }
 
@@ -165,6 +171,11 @@ const deleteCraft = async (craft) =>{
     });
   
     if(response.status!= 200){
+        result.innerHTML = "Error Deleting Your Craft";
+        result.style.color = "red";
+        setTimeout(() => {
+            result.innerHTML = "";
+        }, 3000)
       console.log("Error deleting");
       return;
     }
@@ -199,6 +210,20 @@ const showCraftForm = () => {
     document.getElementById("add-craft-form").classList.remove("hidden");
 }
 
+const showCraftForm2 = (e) => {
+    e.preventDefault();
+    openDialog2("add-craft-form");
+    resetForm();
+}
+
+const openDialog2 = (id) => {
+    document.getElementById("dialog").style.display = "block";
+    document.querySelectorAll("#dialog-details > *").forEach((item) => {
+      item.classList.add("hidden");
+    });
+    document.getElementById(id).classList.remove("hidden");
+  };
+
 const addSupplies = (e) => {
     e.preventDefault();
     const section = document.getElementById("supply-boxes");
@@ -213,7 +238,7 @@ const openDialog = (id) => {
 
 showCrafts();
 document.getElementById("add-craft-form").onsubmit = addCraft;
-document.getElementById("add-link").onclick = showCraftForm;
+document.getElementById("add-link").onclick = showCraftForm2;
 document.getElementById("add-supply").onclick = addSupplies;
 
 document.getElementById("img").onchange = (e) => {

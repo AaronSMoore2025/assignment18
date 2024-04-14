@@ -9,6 +9,26 @@ app.use("/uploads", express.static("uploads"));
 app.use(express.json());
 const cors = require("cors");
 app.use(cors());
+const mongoose = require("mongoose");
+
+mongoose
+  .connect("mongodb+srv://asm25:tMhK79wEcuM10rfR@crafts.tesowrt.mongodb.net/?retryWrites=true&w=majority&appName=crafts")
+  .then(() => {
+    console.log("connected to mongodb");
+  })
+  .catch((error) => {
+    console.log("couldn't connect to mongodb", error);
+  });
+
+  //tMhK79wEcuM10rfR
+const craftSchema = new mongoose.Schema({
+  name: String,
+  description:String,
+  supplies :[String],
+  image: String
+});
+
+const Craft = mongoose.model("Craft", craftSchema);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -28,7 +48,7 @@ app.get("/",(req,res)=>{
 
 
 //app.get("/api/crafts", (req,res)=>{
-
+/*
     let crafts = [
         {
             _id: 1,
@@ -342,43 +362,51 @@ app.get("/",(req,res)=>{
         },
     ];
 //});
+*/
 
 app.get("/api/crafts", (req, res) => {
-    res.send(crafts);
+    //res.send(crafts);
+    getCrafts(res);
 });
+
+const getCrafts = async (res) => {
+    const crafts = await Craft.find();
+    res.send(crafts);
+};
       
 app.post("/api/crafts", upload.single("img"), (req, res) => {
     console.log("in post");
     const result = validateCrafts(req.body);
-
+    console.log(result);
   if (result.error) {
     console.log("problem");
     res.status(400).send(result.error.details[0].message);
     return;
   }
 
-  const craft = {
-    _id: crafts.length + 1,
+  const craft = new Craft({
+    //_id: crafts.length + 1,
     name: req.body.name,
     description: req.body.description,
     supplies: req.body.supplies.split(","),
-  };
+  });
 
   if (req.file) {
     craft.image = req.file.filename;
   }
   
-  crafts.push(craft);
-  res.send(crafts);
+  createCraft(craft, res);
     
 
 });
 
-app.put("/api/crafts/:id", upload.single("img"), (req,res)=>{
-    console.log(crafts);
+const createCraft = async (craft, res) => {
+    console.log("in create craft");
+    const result = await craft.save();
+    res.send(craft);
+}
 
-    const craft = crafts.find((r)=>r._id === parseInt(req.params.id));
-    if(!craft) res.status(400).send("Craft with id was not found");
+app.put("/api/crafts/:id", upload.single("img"), (req,res)=>{
 
     const result = validateCrafts(req.body);
 
@@ -387,30 +415,34 @@ app.put("/api/crafts/:id", upload.single("img"), (req,res)=>{
         return;
     }
 
-    craft.name = req.body.name;
-    craft.description = req.body.description; // maybe a -
-    craft.supplies = req.body.supplies.split(",");
-
-    if(req.file) {
-        craft.image = req.file.filename;
-    }
-
-    res.send(craft);
-
+    updateCraft(req, res);
 });
 
-app.delete("/api/crafts/:id", (req,res)=>{
-    const craft = crafts.find((r)=>r._id === parseInt(req.params.id));
-  
-    if(!craft){
-      res.status(404).send("id not found");
-      return;
+const updateCraft = async (req, res) => {
+    console.log(req.body);
+    let fieldsToUpdate = {
+        name: req.body.name,
+        description: req.body.description,
+        supplies: req.body.supplies.split(",")
+    };
+
+    if (req.file) {
+        fieldsToUpdate.image = "images/" + req.file.filename;
     }
-  
-    const index = crafts.indexOf(craft);
-    crafts.splice(index, 1);
-    res.send(craft);
+
+    const result = await Craft.updateOne({ _id: req.params.id}, fieldsToUpdate);
+
+    res.send(result);
+}
+
+app.delete("/api/crafts/:id", (req,res)=>{
+    removeCraft(res, req.params.id);
   });
+
+  const removeCraft = async (res, id) => {
+    const craft = await Craft.findByIdAndDelete(id);
+    res.send(craft);
+  }
 
 const validateCrafts = (craft) => {
     const schema = Joi.object({
