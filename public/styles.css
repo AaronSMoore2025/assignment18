@@ -1,0 +1,90 @@
+img {
+    padding: 5px;
+    width: 250px;
+    height: 250px;
+}
+
+#main-header {
+    text-align: center;
+    background: gray;
+    color: #0c343d;
+    padding: 0px;
+    margin-right: 10%;
+    margin-left: 10%;
+}
+
+.headerClass {
+    padding: 10px;
+    margin-right: 10%;
+    margin-left: 10%;
+}
+
+#mainSection {
+    margin: 0px;
+    padding: 0px;
+}
+
+#json-info {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 7.5%;
+   
+}
+
+#mainContent {
+    display: flex;
+    padding: 0px;
+    margin: 0px;
+}
+
+.hidden {
+    display: none;
+}
+
+#craft-list {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0px;
+    margin: 0px;
+}
+
+#mainSection {
+    margin: 15px;
+}
+
+
+
+
+
+@media (max-width: 800px){
+    #json-info{
+        flex-direction: column;
+    }
+
+    #craft-list {
+        flex-direction: column;
+    }
+
+
+}
+
+@media only screen and (max-width: 800px){
+    #json-info{
+        flex-direction: column;
+    }
+
+    #mainSection {
+        flex: 20%;
+    }
+    
+}
+
+@media only screen and (min-width: 800px){
+    #dialog-content-2{
+        display: flex;
+    }
+
+    #craft-list{
+        flex: 20%;
+    }
+}
